@@ -1,0 +1,18 @@
+[paths]
+source =
+  dhos_questions_api/*
+
+[report]
+exclude_lines =
+  app.config
+
+omit =
+  */__main__.py
+  dhos_questions_api/app.py
+  dhos_questions_api/autoapp.py
+  dhos_questions_api/blueprint_development/*
+
+fail_under = 90
+
+show_missing = true
+skip_covered = true

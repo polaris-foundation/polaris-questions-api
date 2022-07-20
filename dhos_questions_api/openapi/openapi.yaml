@@ -1,0 +1,1045 @@
+openapi: 3.0.3
+info:
+  description: The DHOS Questions API is responsible for storing and retrieving surveys,
+    and their associated questions and answers.
+  title: DHOS Questions API
+  version: 1.0.0
+paths:
+  /running:
+    get:
+      summary: Verify service is running
+      description: Verifies that the service is running. Used for monitoring in kubernetes.
+      tags:
+      - monitoring
+      responses:
+        '200':
+          description: If we respond, we are running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  running:
+                    type: boolean
+                    example: true
+      operationId: flask_batteries_included.blueprint_monitoring.app_running
+  /version:
+    get:
+      summary: Get version information
+      description: Get the version number, circleci build number, and git hash.
+      tags:
+      - monitoring
+      responses:
+        '200':
+          description: Version numbers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  circle:
+                    type: string
+                    example: '1234'
+                  hash:
+                    type: string
+                    example: 366c204
+      operationId: flask_batteries_included.blueprint_monitoring.app_version
+  /dhos/v1/question_type:
+    post:
+      summary: Create question type
+      description: Create a new question type using the details provided in the request
+        body.
+      tags:
+      - question
+      requestBody:
+        description: Question type details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionTypeRequest'
+      responses:
+        '200':
+          description: The new question type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionTypeResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.create_question_type
+      security:
+      - bearerAuth: []
+  /dhos/v1/question_option_type:
+    post:
+      summary: Create question option type
+      description: Create a new question option type using the details provided in
+        the request body.
+      tags:
+      - question
+      requestBody:
+        description: Question option type details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionOptionTypeRequest'
+      responses:
+        '200':
+          description: The new question option type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionOptionTypeResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.create_question_option_type
+      security:
+      - bearerAuth: []
+  /dhos/v1/question:
+    post:
+      summary: Create question
+      description: Create a new question using the details provided in the request
+        body.
+      tags:
+      - question
+      requestBody:
+        description: Question details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionRequest'
+      responses:
+        '200':
+          description: The new question
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.create_question
+      security:
+      - bearerAuth: []
+  /dhos/v1/survey:
+    post:
+      summary: Create survey
+      description: Create a new survey using the details provided in the request body.
+      tags:
+      - survey
+      requestBody:
+        description: Survey details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SurveyRequest'
+      responses:
+        '200':
+          description: The new survey
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurveyResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.create_survey
+      security:
+      - bearerAuth: []
+    get:
+      summary: Get all surveys
+      description: Get a list of all surveys.
+      tags:
+      - survey
+      responses:
+        '200':
+          description: An array of surveys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SurveyResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_all_surveys
+      security:
+      - bearerAuth: []
+  /dhos/v1/answer:
+    post:
+      summary: Create answers
+      description: Create a new answers using the array of objects provided in the
+        request body.
+      tags:
+      - answer
+      requestBody:
+        description: Array of answers
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AnswerRequest'
+      responses:
+        '200':
+          description: Created answers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnswerResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.create_answers
+      security:
+      - bearerAuth: []
+    get:
+      summary: Get all answers
+      description: Get all answers for all surveys. Responds with an array of answer
+        objects.
+      tags:
+      - answer
+      parameters:
+      - name: start_date
+        in: query
+        required: false
+        description: Start date of survey answers
+        schema:
+          type: string
+          example: '2020-03-01'
+      - name: end_date
+        in: query
+        required: false
+        description: End date of survey answers
+        schema:
+          type: string
+          example: '2020-04-01'
+      responses:
+        '200':
+          description: Array of answers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnswerResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_answers
+      security:
+      - bearerAuth: []
+  /dhos/v1/survey/{survey_uuid}/answer:
+    post:
+      summary: Create answers for a survey
+      description: Create new answers for a particular survey using the array of objects
+        provided in the request body.
+      tags:
+      - answer
+      parameters:
+      - name: survey_uuid
+        in: path
+        required: true
+        description: Survey UUID
+        schema:
+          type: string
+          example: 18439f36-ffa9-42ae-90de-0beda299cd37
+      requestBody:
+        description: Array of answers
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SurveyAnswerRequest'
+      responses:
+        '200':
+          description: Created answers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnswerResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.create_answers_for_survey
+      security:
+      - bearerAuth: []
+    get:
+      summary: Get answers by survey UUID
+      description: Get answers for the survey with the provided UUID. Responds with
+        an array of answers.
+      tags:
+      - answer
+      parameters:
+      - name: survey_uuid
+        in: path
+        required: true
+        description: Survey UUID
+        schema:
+          type: string
+          example: be4db181-076d-40f8-87c4-303761990563
+      responses:
+        '200':
+          description: Array of answers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnswerResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_answers_by_survey_uuid
+      security:
+      - bearerAuth: []
+  /dhos/v1/question/{question_uuid}:
+    get:
+      summary: Get question by UUID
+      description: Get the question that matches the UUID provided in the URL path.
+      tags:
+      - question
+      parameters:
+      - name: question_uuid
+        in: path
+        required: true
+        description: The question UUID
+        schema:
+          type: string
+          example: 18439f36-ffa9-42ae-90de-0beda299cd37
+      responses:
+        '200':
+          description: The question with the specified UUID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_question_by_uuid
+      security:
+      - bearerAuth: []
+  /dhos/v1/survey/{survey_uuid}/question:
+    get:
+      summary: Get questions by survey UUID
+      description: Get a list of all the questions belonging to the survey that matches
+        the UUID provided in the URL path.
+      tags:
+      - question
+      parameters:
+      - name: survey_uuid
+        in: path
+        required: true
+        description: The survey UUID
+        schema:
+          type: string
+          example: 18439f36-ffa9-42ae-90de-0beda299cd37
+      responses:
+        '200':
+          description: A list of the questions belonging to the survey with the specified
+            UUID.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_questions_by_survey_uuid
+      security:
+      - bearerAuth: []
+  /dhos/v1/group/{group_uuid}/question:
+    get:
+      summary: Get questions by group UUID
+      description: Get a list of all the questions belonging to the group that matches
+        the UUID provided in the URL path.
+      tags:
+      - question
+      parameters:
+      - name: group_uuid
+        in: path
+        required: true
+        description: The group UUID
+        schema:
+          type: string
+          example: 18439f36-ffa9-42ae-90de-0beda299cd37
+      responses:
+        '200':
+          description: A list of the questions belonging to the group with the specified
+            UUID.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_questions_by_group_uuid
+      security:
+      - bearerAuth: []
+  /dhos/v1/survey/{survey_uuid}:
+    get:
+      summary: Get survey by UUID
+      description: Get the survey that matches the UUID provided in the URL path.
+      tags:
+      - survey
+      parameters:
+      - name: survey_uuid
+        in: path
+        required: true
+        description: The survey UUID
+        schema:
+          type: string
+          example: 18439f36-ffa9-42ae-90de-0beda299cd37
+      responses:
+        '200':
+          description: The survey
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurveyResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_survey_by_uuid
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update survey
+      description: Update a survey by UUID with the details provided in the request
+        body
+      tags:
+      - survey
+      parameters:
+      - name: survey_uuid
+        in: path
+        required: true
+        description: The survey UUID
+        schema:
+          type: string
+          example: 18439f36-ffa9-42ae-90de-0beda299cd37
+      requestBody:
+        description: JSON body containing the survey details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SurveyUpdateRequest'
+      responses:
+        '200':
+          description: The survey with the specified UUID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurveyResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.update_survey
+      security:
+      - bearerAuth: []
+  /dhos/v1/survey/{survey_uuid}/question/{question_uuid}/answer:
+    get:
+      summary: Get answers by survey and question UUID
+      description: Get answers for the survey and question with the provided UUIDs.
+        Responds with an array of answers.
+      tags:
+      - answer
+      parameters:
+      - name: survey_uuid
+        in: path
+        required: true
+        description: Survey UUID
+        schema:
+          type: string
+          example: be4db181-076d-40f8-87c4-303761990563
+      - name: question_uuid
+        in: path
+        required: true
+        description: Question UUID
+        schema:
+          type: string
+          example: e2025736-c93b-42b8-b522-2ee45be89002
+      responses:
+        '200':
+          description: An array of answer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnswerResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_answers_by_survey_and_question_uuid
+      security:
+      - bearerAuth: []
+  /dhos/v1/answer/{answer_uuid}:
+    get:
+      summary: Get answer by UUID
+      description: Get a particular answer by UUID
+      tags:
+      - answer
+      parameters:
+      - name: answer_uuid
+        in: path
+        required: true
+        description: Answer UUID
+        schema:
+          type: string
+          example: a7b72a66-e0f3-43e5-9bb9-99058b4af114
+      responses:
+        '200':
+          description: The answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_answer_by_uuid
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update answer
+      description: Update an answer by UUID using the answer details provided in the
+        request body.
+      tags:
+      - answer
+      parameters:
+      - name: answer_uuid
+        in: path
+        required: true
+        description: Survey UUID
+        schema:
+          type: string
+          example: a7b72a66-e0f3-43e5-9bb9-99058b4af114
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerUpdateRequest'
+      responses:
+        '200':
+          description: Updated answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerResponse'
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.update_answer
+      security:
+      - bearerAuth: []
+  /dhos/v1/survey_responses:
+    get:
+      summary: Get CSV of survey answers
+      description: Generates and returns a CSV of survey questions and answers between
+        two dates. The dates are inclusive - if an end_date is specified then any
+        survey answers recorded on that day will be included.
+      tags:
+      - survey
+      parameters:
+      - name: start_date
+        in: query
+        required: false
+        description: Start date of survey answers
+        schema:
+          type: string
+          format: date
+          example: '2020-03-01'
+      - name: end_date
+        in: query
+        required: false
+        description: End date of survey answers
+        schema:
+          type: string
+          format: date
+          example: '2020-04-01'
+      responses:
+        '200':
+          description: CSV of survey answers
+          content:
+            text/csv:
+              schema:
+                type: string
+        default:
+          description: Error, e.g. 400 Bad Request, 404 Not Found, 503 Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: dhos_questions_api.blueprint_api.get_survey_responses
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP response code
+          example: 404
+        message:
+          type: string
+          description: Message attached to response
+          example: Not Found
+      required:
+      - code
+      description: An error response in json format
+    QuestionType:
+      type: object
+      properties:
+        value:
+          type: integer
+          description: Identifier of the question type
+          example: 0
+      required:
+      - value
+      title: Question type
+    QuestionOption:
+      type: object
+      properties:
+        question_option_type:
+          type: integer
+          description: Identifier of the question option type
+          example: 0
+        value:
+          type: string
+          description: Value related to the option
+          example: '1'
+        text:
+          type: string
+          nullable: true
+          description: Display text related to the option. Commonly used for radio/check
+            options. Can be the same as the value
+          example: one
+        order:
+          type: integer
+          nullable: true
+          description: Sort order for display purposes
+          example: 1
+      required:
+      - question_option_type
+      - value
+      title: Question option
+    QuestionGroup:
+      type: object
+      properties:
+        group:
+          type: string
+          description: The question group name
+          example: GDM_FEEDBACK
+      required:
+      - group
+      title: Question group
+    QuestionRequest:
+      type: object
+      properties:
+        question:
+          type: string
+          description: The question text
+          example: What is the average airspeed velocity of an unladen swallow?
+        question_type:
+          $ref: '#/components/schemas/QuestionType'
+        question_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionOption'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionGroup'
+      required:
+      - question
+      - question_type
+      title: Question request
+    QuestionResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Universally unique identifier for object
+          example: 2c4f1d24-2952-4d4e-b1d1-3637e33cc161
+        created:
+          type: string
+          description: When the object was created
+          example: '2017-09-23T08:29:19.123+00:00'
+        created_by:
+          type: string
+          description: UUID of the user that created the object
+          example: d26570d8-a2c9-4906-9c6a-ea1a98b8b80f
+        modified:
+          type: string
+          description: When the object was modified
+          example: '2017-09-23T08:29:19.123+00:00'
+        modified_by:
+          type: string
+          description: UUID of the user that modified the object
+          example: 2a0e26e5-21b6-463a-92e8-06d7290067d0
+        question:
+          type: string
+          description: The question text
+          example: What is the average airspeed velocity of an unladen swallow?
+        question_type:
+          $ref: '#/components/schemas/QuestionType'
+        question_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionOption'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionGroup'
+      required:
+      - question
+      - question_type
+      - uuid
+      title: Question response
+    QuestionTypeRequest:
+      type: object
+      properties:
+        value:
+          type: integer
+          description: Identifier of the question type
+          example: 0
+      required:
+      - value
+      title: Question Type request
+    QuestionTypeResponse:
+      type: object
+      properties:
+        value:
+          type: integer
+          description: Identifier of the question type
+          example: 0
+      required:
+      - value
+      title: Question Type response
+    QuestionOptionTypeRequest:
+      type: object
+      properties:
+        value:
+          type: integer
+          description: Identifier of the question option type
+          example: 0
+      required:
+      - value
+      title: Question Option Type request
+    QuestionOptionTypeResponse:
+      type: object
+      properties:
+        value:
+          type: integer
+          description: Identifier of the question option type
+          example: 0
+      required:
+      - value
+      title: Question Option Type response
+    SurveyRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The UUID of the entity being asked the questions
+          example: 2c4f1d24-2952-4d4e-b1d1-3637e33cc161
+        user_type:
+          type: string
+          description: The object type of the entity being asked the questions
+          example: 2c4f1d24-2952-4d4e-b1d1-3637e33cc161
+        completed:
+          type: string
+          description: When the survey was completed
+          example: '2019-01-01T00:00:00.000Z'
+        declined:
+          type: string
+          description: When the survey was declined
+          example: '2019-01-01T00:00:00.000Z'
+        group:
+          type: string
+          description: The question group
+          example: GDM_FEEDBACK
+      required:
+      - group
+      - user_id
+      - user_type
+      title: Survey request
+    SurveyResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Universally unique identifier for object
+          example: 2c4f1d24-2952-4d4e-b1d1-3637e33cc161
+        created:
+          type: string
+          description: When the object was created
+          example: '2017-09-23T08:29:19.123+00:00'
+        created_by:
+          type: string
+          description: UUID of the user that created the object
+          example: d26570d8-a2c9-4906-9c6a-ea1a98b8b80f
+        modified:
+          type: string
+          description: When the object was modified
+          example: '2017-09-23T08:29:19.123+00:00'
+        modified_by:
+          type: string
+          description: UUID of the user that modified the object
+          example: 2a0e26e5-21b6-463a-92e8-06d7290067d0
+        user_id:
+          type: string
+          description: The UUID of the entity being asked the questions
+          example: 2c4f1d24-2952-4d4e-b1d1-3637e33cc161
+        user_type:
+          type: string
+          description: The object type of the entity being asked the questions
+          example: 2c4f1d24-2952-4d4e-b1d1-3637e33cc161
+        completed:
+          type: string
+          description: When the survey was completed
+          example: '2019-01-01T00:00:00.000Z'
+        declined:
+          type: string
+          description: When the survey was declined
+          example: '2019-01-01T00:00:00.000Z'
+        group:
+          $ref: '#/components/schemas/QuestionGroup'
+        deleted:
+          type: string
+          description: When the survey was deleted
+          example: '2019-01-01T00:00:00.000Z'
+      required:
+      - group
+      - user_id
+      - user_type
+      - uuid
+      title: Survey response
+    SurveyUpdateRequest:
+      type: object
+      properties:
+        completed:
+          type: string
+          description: When the survey was completed
+          example: '2019-01-01T00:00:00.000Z'
+        declined:
+          type: string
+          description: When the survey was declined
+          example: '2019-01-01T00:00:00.000Z'
+      title: Survey update request
+    AnswerRequest:
+      type: object
+      properties:
+        survey_id:
+          type: string
+          description: The survey UUID
+          example: 6971e1ba-4ab2-48a8-8ba5-080b2e4b65fd
+        question_id:
+          type: string
+          description: The question UUID
+          example: 6971e1ba-4ab2-48a8-8ba5-080b2e4b65fd
+        value:
+          type: string
+          description: The answer value
+          example: '4'
+        text:
+          type: string
+          nullable: true
+          description: Display text related to the option, can be the same as the
+            value
+          example: four
+      required:
+      - question_id
+      - survey_id
+      - value
+      title: Answer request
+    AnswerResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Universally unique identifier for object
+          example: 2c4f1d24-2952-4d4e-b1d1-3637e33cc161
+        created:
+          type: string
+          description: When the object was created
+          example: '2017-09-23T08:29:19.123+00:00'
+        created_by:
+          type: string
+          description: UUID of the user that created the object
+          example: d26570d8-a2c9-4906-9c6a-ea1a98b8b80f
+        modified:
+          type: string
+          description: When the object was modified
+          example: '2017-09-23T08:29:19.123+00:00'
+        modified_by:
+          type: string
+          description: UUID of the user that modified the object
+          example: 2a0e26e5-21b6-463a-92e8-06d7290067d0
+        survey_id:
+          type: string
+          description: The survey UUID
+          example: 6971e1ba-4ab2-48a8-8ba5-080b2e4b65fd
+        question_id:
+          type: string
+          description: The question UUID
+          example: 6971e1ba-4ab2-48a8-8ba5-080b2e4b65fd
+        value:
+          type: string
+          description: The answer value
+          example: '4'
+        text:
+          type: string
+          nullable: true
+          description: Display text related to the option, can be the same as the
+            value
+          example: four
+        deleted:
+          type: string
+          description: When the answer was deleted
+          example: '2019-01-01T00:00:00.000Z'
+      required:
+      - question_id
+      - survey_id
+      - uuid
+      - value
+      title: Answer response
+    SurveyAnswerRequest:
+      type: object
+      properties:
+        question_id:
+          type: string
+          description: The question UUID
+          example: 6971e1ba-4ab2-48a8-8ba5-080b2e4b65fd
+        value:
+          type: string
+          description: The answer value
+          example: '4'
+        text:
+          type: string
+          nullable: true
+          description: Display text related to the option, can be the same as the
+            value
+          example: four
+      required:
+      - question_id
+      - value
+      title: Survey answer request
+    AnswerUpdateRequest:
+      type: object
+      properties:
+        value:
+          type: string
+          nullable: true
+          description: The answer value
+          example: '4'
+        text:
+          type: string
+          nullable: true
+          description: Display text related to the option, can be the same as the
+            value
+          example: four
+      title: Answer update request
+  responses:
+    BadRequest:
+      description: Bad or malformed request was received
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServiceUnavailable:
+      description: Service or dependent resource not available
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

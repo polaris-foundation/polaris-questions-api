@@ -1,0 +1,11 @@
+behave
+black
+environs
+faker
+isort
+kombu==4.*
+mypy
+python-jose==3.*
+reportportal-behave-client==1.*
+requests==2.*
+she-logging==1.*
