@@ -1,9 +1,6 @@
 FROM python:3.9-slim
 
 WORKDIR /app
-ARG PIP_EXTRA_INDEX_URL
-
-RUN apt-get update -y && apt-get upgrade -y
 
 # Install dependencies
 ADD requirements.txt .
