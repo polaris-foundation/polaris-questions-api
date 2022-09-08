@@ -4,7 +4,7 @@ version = "0.0.1"
 description = "Questions API to manage questionnaires and feedback"
 authors = ["Andrew Gill <andrew.gill@sensynehealth.com>"]
 keywords = ["Questions", "Answers", "Polaris"]
-repository = "https://github.com/polaris-foundation/dhos-questions-api"
+repository = "https://github.com/polaris-foundation/polaris-questions-api"
 
 [tool.poetry.dependencies]
 python = "^3.9"
