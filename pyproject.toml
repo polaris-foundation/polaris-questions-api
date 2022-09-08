@@ -3,12 +3,8 @@ name = "dhos-questions-api"
 version = "0.0.1"
 description = "Questions API to manage questionnaires and feedback"
 authors = ["Andrew Gill <andrew.gill@sensynehealth.com>"]
-keywords = ["Questions", "Answers", "DHOS"]
-repository = "https://github.com/draysontechnologies/dhos-questions-api"
-
-[[tool.poetry.source]]
-name = "sensynehealth"
-url = "https://pypi.fury.io/sensynehealth/"
+keywords = ["Questions", "Answers", "Polaris"]
+repository = "https://github.com/polaris-foundation/dhos-questions-api"
 
 [tool.poetry.dependencies]
 python = "^3.9"
